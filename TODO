@@ -1,0 +1,3 @@
+* make Feedity.com feeds work with plugin
+
+* make the feed groups sortable by newest items.  If a feed has new items it should be "floated up" to the top of that group

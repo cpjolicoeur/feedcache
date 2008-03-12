@@ -1,0 +1,65 @@
+== CHANGELOG ==
+
+0.9.5 - 12/02/2007
+* added option to open feed links in a new browser window
+
+0.9.1 - 12/01/2007
+* bugfix for issue where files/ directory wasn't being included in the Wordpress download
+* fixed issue with truncation of feed titles to include ellipses
+
+0.9 - 11/30/2007
+* allow the user to set the number of RSS groups (from 1 - 10)
+* moved config and cache files to the new files/ directory
+* created a new master-config file for general settings
+
+0.8.1 - 11/24/2007
+* fixed an issue with weird links using ATOM feeds from blogspot
+
+0.8 - 11/23/2007
+* now using feedparser library to parse both RSS and ATOM feeds
+* cleaned up configuration so only the feedcache plugin path will need to be entered
+
+0.7.2 - 11/20/2007
+* fixed bug with config files not being set properly
+
+0.7.1 - 11/19/2007
+* rename broken screenshot file
+
+0.7 - 11/19/2007
+* Allow up to 4 different cache files to allow for multiple instances of the plugin per theme
+* Fix some admin page layout issues
+
+0.6.1 - 10/30/2007
+* Add option to not send CRON error emails
+
+0.6 - 10/01/2007
+* Fix broken feed formatting options
+
+0.5.5 - 09/27/2007
+* Added user-agent to the CRON script to force RSS-only feeds from feedburners SmartFeed service 
+
+0.5.2 - 09/24/2007
+* Lower the error output level from the CRON job again
+
+0.5.1 - 09/24/2007
+* Lower the error output level from the CRON job
+
+0.5 - 09/15/2007
+* Use a temp file when grabbing new cache
+
+0.4 - 09/13/2007
+* Updates to the Ruby CRON script for better error handling
+
+0.3.1 - 09/12/2007
+* Fixed bug that would cause PHP header errors during login/logout
+
+0.3 - 09/04/2007
+* Added option to manually override the number of feed items to display on a per feed basis
+* Added option to manually override the feed text formatting option on a per feed basis
+
+0.2 - 09/03/2007
+* Updated README file
+* Added option for manually named feed titles
+
+0.1 - 08/31/2007
+* Initial Release
