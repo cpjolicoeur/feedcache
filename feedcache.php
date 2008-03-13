@@ -4,7 +4,7 @@ Plugin Name: FeedCache
 Plugin URI: http://www.craigjolicoeur.com/feedcache
 Description: Caches RSS Feeds for display on WP site sidebar.  This prevents multiple HTTP requests with each page load since the feeds can be read from the cache file.
 Author: Craig P Jolicoeur
-Version: 0.9.5
+Version: 0.9.8
 Author URI: http://www.craigjolicoeur.com/
 */
 
@@ -17,20 +17,77 @@ define("DEFAULT_POST_TAG", "</h3>");
 define("DEFAULT_FORMAT_TEXT", "true");
 define("DEFAULT_GROUP_NUM", '4');
 define("DEFAULT_DISPLAY_NUM", '5');
+define("CHAR_COUNT", 75);
+define("MAGPIE_CACHE_DIR", FEEDCACHE_PATH . '/' . 'cache/');
+
+//***************************************************
+//
+//         DO NOT EDIT BELOW THIS LINE                         
+//
+//***************************************************
+
+// Include RSS functions
+include_once(ABSPATH . WPINC . '/rss.php');
 
 // Wordpress hooks
 add_action('admin_menu', 'feedcache');
 
 // Functions
-function feedcache_display_feeds($rss_group = '1', $fname = 'feedcache-cache') {
-  $fname = trim($fname.$rss_group);
-  if (strlen($fname) > 0) {
-    $fname = FEEDCACHE_FILES_PATH . $fname . '.txt';
-    if (file_exists($fname)) {
-      $file_content = file_get_contents($fname);
-      return $file_content;
-    }
-  }
+function feedcache_display_feeds($rss_group = '1', $fname = 'feedcache-config') {
+	list($groups_num, $display_num, $title_pre, $title_post, $format_text, $link_target) = load_master_config();
+	$format_text = ($format_text == 'true') ? TRUE : FALSE;
+	$link_target = ($link_target == 'true') ? '_blank' : '_self';
+	
+	$fname = FEEDCACHE_FILES_PATH . trim($fname) . "$rss_group.txt";
+	$output = "";
+	if ($file_handle = fopen($fname, "r")) {
+		while (!feof($file_handle)) {
+			$line = trim(fgets($file_handle));
+			$feed_info = explode('|', $line);
+			// $feed_info[0] = rss feed
+			// $feed_info[1] = user title
+			// $feed_info[2] = user # of entries
+			// $feed_info[2] = user format override
+			// do whatever you want with the line data here
+			$feed = fetch_rss($feed_info[0]);
+			$items = array_slice($rss->items, 0, (isset($feed_info[2])) ? intval($feed_info[2]) : intval($display_num));
+			$output .= $title_pre . (isset($feed_info[1]) ? $feed_info[1] : $feed->channel['title'] ) . $title_post;
+			$output .= "<ul>";
+			if (empty($items)) {
+				$output .= "<li>No items</li>";
+			} else {
+				foreach ($items as $item) {
+					//*******************************
+					//* still need to check if feed
+					//* title needs to be formatted
+					//*******************************
+					$output .= "<li><a href='" . $item['link'] . "' title='" . $item['title'] . "'>" . $item['title'] . "</a></li>";
+				}
+			}
+			$output .= "</ul>";
+		}
+		fclose($file_handle);
+		echo $output;
+	} else {
+		$output .= "Cannot find FeedCache feed group config file!";
+		echo $output;
+	}
+}
+
+function shorten_text($string='', $chars=CHAR_COUNT, $elli='...') {
+	list($new_string, $elli)= explode("\n", wordwrap($string, $chars, "\n", false));
+	return  ( $elli ) ? $new_string.'...' : $new_string;
+}
+
+function load_master_config() {
+	$fname = FEEDCACHE_PATH . "/master-config.txt";
+	if (file_exists($fname)) {
+		$file_content = trim(file_get_contents($fname));
+		return explode('~', $file_content);
+	} else {
+		echo "FeedCache Master Config file not found!";
+		exit;
+	}
 }
 
 function fc_build_config_file($rss_group, $rss_list, $fname = 'feedcache-config') {
