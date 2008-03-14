@@ -45,14 +45,10 @@ function feedcache_display_feeds($rss_group = '1', $fname = 'feedcache-config') 
 	if ($file_handle = fopen($fname, "r")) {
 		while (!feof($file_handle)) {
 			$line = trim(fgets($file_handle));
-			if (empty($line)) break;
+			if (empty($line)) continue; // if there is a blank line in the config file just continue
 			$feed_info = explode('|', $line);
-			// $feed_info[0] = rss feed
-			// $feed_info[1] = user title
-			// $feed_info[2] = user # of entries
-			// $feed_info[2] = user format override
-			// do whatever you want with the line data here
 			$feed = fetch_rss($feed_info[0]);
+			if (!is_array($feed->items)) break; // not sure why $feed->items is not always an array, but check for it here
 			$items = array_slice($feed->items, 0, (isset($feed_info[2])) ? intval($feed_info[2]) : intval($display_num));
 			$output .= $title_pre . (isset($feed_info[1]) ? $feed_info[1] : $feed->channel['title'] ) . $title_post;
 			$output .= "<ul>";
