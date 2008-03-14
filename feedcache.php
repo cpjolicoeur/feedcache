@@ -18,7 +18,9 @@ define("DEFAULT_FORMAT_TEXT", "true");
 define("DEFAULT_GROUP_NUM", '4');
 define("DEFAULT_DISPLAY_NUM", '5');
 define("CHAR_COUNT", 75);
-define("MAGPIE_CACHE_DIR", FEEDCACHE_PATH . '/' . 'cache/');
+define("MAGPIE_CACHE_DIR", FEEDCACHE_PATH . '/cache'); // set cache path
+define("MAGPIE_CACHE_ON", 1); // turn on RSS caching
+define('MAGPIE_CACHE_AGE', 60*60); // one hour
 
 //***************************************************
 //
@@ -43,6 +45,7 @@ function feedcache_display_feeds($rss_group = '1', $fname = 'feedcache-config') 
 	if ($file_handle = fopen($fname, "r")) {
 		while (!feof($file_handle)) {
 			$line = trim(fgets($file_handle));
+			if (empty($line)) break;
 			$feed_info = explode('|', $line);
 			// $feed_info[0] = rss feed
 			// $feed_info[1] = user title
@@ -50,7 +53,7 @@ function feedcache_display_feeds($rss_group = '1', $fname = 'feedcache-config') 
 			// $feed_info[2] = user format override
 			// do whatever you want with the line data here
 			$feed = fetch_rss($feed_info[0]);
-			$items = array_slice($rss->items, 0, (isset($feed_info[2])) ? intval($feed_info[2]) : intval($display_num));
+			$items = array_slice($feed->items, 0, (isset($feed_info[2])) ? intval($feed_info[2]) : intval($display_num));
 			$output .= $title_pre . (isset($feed_info[1]) ? $feed_info[1] : $feed->channel['title'] ) . $title_post;
 			$output .= "<ul>";
 			if (empty($items)) {
