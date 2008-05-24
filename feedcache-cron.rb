@@ -5,7 +5,7 @@ FEEDCACHE_DIR = '/Users/cpjolicoeur/Sites/gspolitics/wp-content/plugins/feedcach
 # How many characters from each feed item do you want to display
 CHAR_COUNT = 75
 # Set to 'true' if you want to receive error emails from the CRON job
-CRON_EMAILS = false
+CRON_EMAILS = true #false
 # Run as threaded
 THREADED = true #false
 
@@ -59,12 +59,12 @@ def shorten_text(txt)
 end
 
 if THREADED
-  
   # fork a thread for each config file here
+  send_cron_emails = CRON_EMAILS ? '-e' : ''
   CONFIG_FILES.each do |config|
     pid = fork {
       # exec scripts here
-      system("/usr/bin/env ruby feedcache-lite.rb -p #{config}")
+      system("/usr/bin/env ruby feedcache-lite.rb -p #{config} -n #{@display_num.to_i} -f #{@format_text} -l #{@link_target} -c #{CHAR_COUNT.to_i} #{send_cron_emails}")
     }
     Process.detach(pid)
   end

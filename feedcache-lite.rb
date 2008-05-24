@@ -1,7 +1,5 @@
 $LOAD_PATH << File.expand_path(File.dirname(__FILE__))
 
-CRON_EMAILS = true
-
 require 'optparse'
 require 'net/http'
 require 'lib/feedparser'
@@ -16,7 +14,8 @@ options = {
   :title_post => "</h3>",
   :format_text => 'true',
   :link_target => '_blank',
-  :char_count => 75
+  :char_count => 75, 
+  :cron_emails => true #false
 }
 OptionParser.new do |opts|
   opts.banner = "Usage: feedcache-lite.rb [options]"
@@ -25,16 +24,20 @@ OptionParser.new do |opts|
     options[:verbose] = v
   end
   
+  opts.on("-e", "--cron-emails", "Send CRON emails") do |e|
+    options[:cron_emails] = e
+  end
+  
   opts.on("-p PATH", "--path PATH", "File path to process") do |p|
     options[:path] = p
   end
   
   opts.on("-n NUM", "--num NUM", "Number of entries to show") do |n|
-    options[:display_num] = n
+    options[:display_num] = n.to_i
   end
   
-  opts.on("-r PRE", "--pre PRE", "Title pre text") do |p|
-    options[:title_pre] = p
+  opts.on("-r PRE", "--pre PRE", "Title pre text") do |r|
+    options[:title_pre] = r
   end
   
   opts.on("-s POST", "--post POST", "Title post text") do |s|
@@ -50,7 +53,7 @@ OptionParser.new do |opts|
   end
   
   opts.on("-c COUNT", "--count COUNT", "Character count") do |c|
-    options[:char_count] = c
+    options[:char_count] = c.to_i
   end
 end.parse!
 
@@ -82,7 +85,7 @@ begin # read the config file settings
     end
   end
 rescue => e
-  if CRON_EMAILS
+  if options[:cron_emails]
     puts "Error reading configuration file"
     puts YAML.dump(e)
   end
