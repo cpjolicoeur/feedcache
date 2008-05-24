@@ -15,7 +15,7 @@ options = {
   :format_text => 'true',
   :link_target => '_blank',
   :char_count => 75, 
-  :cron_emails => true #false
+  :cron_emails => false
 }
 OptionParser.new do |opts|
   opts.banner = "Usage: feedcache-lite.rb [options]"
