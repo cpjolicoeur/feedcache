@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/!svn/ver/25220/feedcache/trunk/lib/feedparser
+END
+filesizes.rb
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/!svn/ver/25193/feedcache/trunk/lib/feedparser/filesizes.rb
+END
+textconverters.rb
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/!svn/ver/25195/feedcache/trunk/lib/feedparser/textconverters.rb
+END
+feedparser.rb
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/!svn/ver/25220/feedcache/trunk/lib/feedparser/feedparser.rb
+END
+html-output.rb
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/!svn/ver/25193/feedcache/trunk/lib/feedparser/html-output.rb
+END
+text-output.rb
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/!svn/ver/25195/feedcache/trunk/lib/feedparser/text-output.rb
+END
+html2text-parser.rb
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/!svn/ver/25195/feedcache/trunk/lib/feedparser/html2text-parser.rb
+END
+rexml_patch.rb
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/!svn/ver/25195/feedcache/trunk/lib/feedparser/rexml_patch.rb
+END
+sgml-parser.rb
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/!svn/ver/25193/feedcache/trunk/lib/feedparser/sgml-parser.rb
+END

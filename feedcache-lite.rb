@@ -1,6 +1,6 @@
 $LOAD_PATH << File.expand_path(File.dirname(__FILE__))
 
-CRON_EMAILS = false
+CRON_EMAILS = true
 
 require 'optparse'
 require 'net/http'
@@ -54,13 +54,15 @@ OptionParser.new do |opts|
   end
 end.parse!
 
+raise "You must specify at least the -p file path option" if options[:path].nil?
+
 CONFIG_FILE = "#{options[:path]}"
 CACHE_FILE = CONFIG_FILE.gsub(/config/, 'cache')
 
 # RSS formatting function
-def shorten_text(txt)
-  if txt.size > CHAR_COUNT
-    @text = "#{txt} ".slice(0,CHAR_COUNT)
+def shorten_text(txt, char_count)
+  if txt.size > char_count
+    @text = "#{txt} ".slice(0,char_count)
     # need to break on the last space
     if @text.include?(' ') and @text.slice(@text.size-1, 1) != ' '
       @text.slice!(0, @text.size - (@text.reverse.index(' ') + 1))
@@ -106,10 +108,10 @@ end
         output << "<li><a href='#{item.link}' target='#{options[:link_target]}'>"
         if feed_format && feed_format == 'true'
           txt = "#{item.title.downcase.gsub(/^[a-z]|\s+[a-z]/) {|a| a.upcase}}"
-          output << shorten_text(txt)
+          output << shorten_text(txt, options[:char_count])
         elsif options[:format_text] == 'true'
           txt = "#{item.title.downcase.gsub(/^[a-z]|\s+[a-z]/) {|a| a.upcase}}"
-          output << shorten_text(txt)
+          output << shorten_text(txt, options[:char_count])
         else
           output << "#{item.title}"
         end
@@ -129,7 +131,7 @@ end
 # if we had new feeds, move them to the cache file
 if @processed > 0
   @tmp.open
-  @cache = File::open(CACHE_FILES, "w")
+  @cache = File::open(CACHE_FILE, "w")
   @cache << @tmp.gets(nil)
   @cache.close
   @tmp.close(true) # remove the /tmp file
