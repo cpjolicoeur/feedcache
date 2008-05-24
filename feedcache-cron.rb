@@ -5,9 +5,9 @@ FEEDCACHE_DIR = '/Users/cpjolicoeur/Sites/gspolitics/wp-content/plugins/feedcach
 # How many characters from each feed item do you want to display
 CHAR_COUNT = 75
 # Set to 'true' if you want to receive error emails from the CRON job
-CRON_EMAILS = true #false
+CRON_EMAILS = false
 # Run as threaded
-THREADED = true #false
+THREADED = false
 
 
 #################################################################
