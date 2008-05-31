@@ -45,13 +45,13 @@ end
 # RSS formatting function
 def shorten_text(txt)
   if txt.size > CHAR_COUNT
-    @text = "#{txt} ".slice(0,CHAR_COUNT)
+    text = "#{txt} ".slice(0,CHAR_COUNT)
     # need to break on the last space
-    if @text.include?(' ') and @text.slice(@text.size-1, 1) != ' '
-      @text.slice!(0, @text.size - (@text.reverse.index(' ') + 1))
-      @text << '...'
+    if text.include?(' ') and text.slice(text.size-1, 1) != ' '
+      text.slice!(0, text.size - (text.reverse.index(' ') + 1))
+      text << '...'
     end
-    return @text
+    return text
   else
     return txt
   end
@@ -78,6 +78,7 @@ else
       next if yaml_config["group#{num}"].nil?
       yaml_config["group#{num}"].each {|x| feeds << x.strip if (!x.nil? && !x.strip.blank?) }
       @all_feeds[num] = feeds
+      feeds = nil
     end
   rescue => e
     if CRON_EMAILS
