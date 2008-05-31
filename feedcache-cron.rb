@@ -21,7 +21,6 @@ require 'net/http'
 require 'lib/feedparser'
 require 'uri'
 require 'yaml'
-require 'tempfile' # I dont think I need this any more
 
 # Read master config settings
 MASTER_CONFIG = "#{FEEDCACHE_DIR}/master-config.txt"
@@ -86,12 +85,11 @@ else
   end  
 
   @all_feeds.each do |k,v|
-    @tmp = Tempfile.new("feedcache#{k}")
+    @tmp = ''
     @processed = 0
 
     # parse the feeds here
     v.each do |feed|
-      #puts "\nFEED -> #{feed}\n"
       @html_text = ''
       data = feed.split('|')
       feed_url, feed_title, feed_num, feed_format = data[0], data[1], data[2], data[3]
@@ -125,14 +123,11 @@ else
       end  
     end
 
-    @tmp.close
     # if we had new feeds, move them to the cache file
     if @processed > 0
-      @tmp.open
       @cache = File::open(CACHE_FILES[k], "w")
-      @cache << @tmp.gets(nil)
+      @cache << @tmp
       @cache.close
-      @tmp.close(true) # remove the /tmp file
     end
   end #--> @all_feeds.each do |k,v|
   
