@@ -21,7 +21,7 @@ require 'net/http'
 require 'lib/feedparser'
 require 'uri'
 require 'yaml'
-require 'tempfile'
+require 'tempfile' # I dont think I need this any more
 
 # Read master config settings
 MASTER_CONFIG = "#{FEEDCACHE_DIR}/master-config.txt"
@@ -37,9 +37,9 @@ end
 @link_target  = @params[5].strip == 'true' ? '_blank' : '_self'
 
 # Load config and cache file variables
-CONFIG_FILES, CACHE_FILES = [], []
+CONFIG_FILE = "#{FEEDCACHE_DIR}/files/feedcache-config.yml"
+CACHE_FILES = []
 1.upto(@groups_num) do |i|
-  CONFIG_FILES << "#{FEEDCACHE_DIR}/files/feedcache-config#{i}.txt"
   CACHE_FILES <<  "#{FEEDCACHE_DIR}/files/feedcache-cache#{i}.txt"
 end
 
@@ -73,18 +73,14 @@ else
 
   begin # read the config file settings
     @all_feeds = {}
-    CONFIG_FILES.each_with_index do |cfg_file, idx|
-      config = File.open(cfg_file, 'r') do |f|
-        @feeds = []
-        while line = f.gets
-          @feeds << line.strip
-        end
-      end
-      @all_feeds[idx] = @feeds
+    yaml_config = YAML.load_file(CONFIG_FILE)
+    1.upto(@groups_num).each do |num|
+      yaml_config["group#{num}"].each {|x| @feeds << x.strip unless x.strip.blank? }
+      @all_feeds[num] = @feeds
     end
   rescue => e
     if CRON_EMAILS
-      puts "Error reading configuration file"
+      puts "Error reading YAML configuration file"
       puts YAML.dump(e)
     end
   end  
