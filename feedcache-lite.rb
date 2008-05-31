@@ -1,3 +1,5 @@
+# TODO: update this to use the new config file setup and memory management code
+
 $LOAD_PATH << File.expand_path(File.dirname(__FILE__))
 
 require 'optparse'
@@ -5,7 +7,6 @@ require 'net/http'
 require 'lib/feedparser'
 require 'uri'
 require 'yaml'
-require 'tempfile'
 
 # Default options
 options = {
