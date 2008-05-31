@@ -30,6 +30,8 @@ define('MAGPIE_CACHE_AGE', 60*60); // one hour
 
 // Include RSS functions
 include_once(ABSPATH . WPINC . '/rss.php');
+// Include Spyc PHP YAML library
+include_once(FEEDCACHE_PATH . '/lib/spyc/spyc.php');
 
 // Wordpress hooks
 add_action('admin_menu', 'feedcache');
@@ -89,8 +91,9 @@ function load_master_config() {
 	}
 }
 
-function fc_build_config_file($rss_group, $rss_list, $fname = 'feedcache-config') {
-		$fpath = FEEDCACHE_FILES_PATH . "$fname$rss_group.txt";
+function fc_build_config_file($group_array, $fname = 'feedcache-config') {
+		$fpath = FEEDCACHE_FILES_PATH . "$fname.yml";
+		$yaml = Spyc::YAMLDump($group_array);
 
 		// create the config file if it doesn't exist and make it writeable
 		if (!file_exists($fpath)) {
@@ -104,7 +107,7 @@ function fc_build_config_file($rss_group, $rss_list, $fname = 'feedcache-config'
 	      echo "Cannot open file ($fpath)";
 	      exit;
 	    }
-	    if (fwrite($handle, "$rss_list") === FALSE) {
+	    if (fwrite($handle, "$yaml") === FALSE) {
 	      echo "Cannot write to file ($fpath)";
 	      exit;
 	    }
@@ -156,11 +159,14 @@ function feedcache_subpanel() {
 		$number_of_groups = get_option('feedcache_group_num');
 
     if ($_POST['stage'] == 'process' ) {
-			// update rss list variables and config
-			for ($i=1; $i<=$number_of_groups; $i++) {
+			// $group_array = [];
+
+			for ($i=1; $i<$number_of_groups; $i++) {
 				update_option("feedcache_rss_list$i", $_POST["feedcache_rss_list$i"]);
-				fc_build_config_file($i, $_POST["feedcache_rss_list$i"]);
+				$group_array["group$i"] = explode("\n", $_POST["feedcache_rss_list$i"]);
 			}
+			fc_build_config_file($group_array);
+
 			// update other variables and master config
 			update_option('feedcache_display_num', $_POST['feedcache_display_num']);
 			update_option('feedcache_title_pre', $_POST['feedcache_title_pre']);
