@@ -74,8 +74,9 @@ else
     @all_feeds = {}
     yaml_config = YAML.load_file(CONFIG_FILE)
     1.upto(@groups_num).each do |num|
-      yaml_config["group#{num}"].each {|x| @feeds << x.strip unless x.strip.blank? }
-      @all_feeds[num] = @feeds
+      feeds = []
+      yaml_config["group#{num}"].each {|x| feeds << x.strip unless x.strip.blank? }
+      @all_feeds[num] = feeds
     end
   rescue => e
     if CRON_EMAILS
