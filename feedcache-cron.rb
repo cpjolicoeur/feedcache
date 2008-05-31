@@ -86,19 +86,20 @@ else
   end  
 
   @all_feeds.each do |k,v|
-    @tmp = ''
+    tmp = ''
     @processed = 0
 
     # parse the feeds here
     v.each do |feed|
-      @html_text = ''
+      # puts "Group: #{k}, Feed: #{feed}"
+      html_text = ''
       data = feed.split('|')
       feed_url, feed_title, feed_num, feed_format = data[0], data[1], data[2], data[3]
       begin
         source = Net::HTTP::get URI::parse(feed_url)
         fp = FeedParser::Feed::new(source)
-          @html_text << @title_pre + (feed_title || fp.title) + @title_post
-          @html_text << "<ul>"
+          html_text << @title_pre + (feed_title || fp.title) + @title_post
+          html_text << "<ul>"
           fp.items.each_with_index do |item, idx|
             break if feed_num ? feed_num.to_i == idx.to_i : @display_num.to_i == idx.to_i
             output = ''
@@ -113,10 +114,10 @@ else
               output << "#{item.title}"
             end
             output << "</a></li>\n"
-            @html_text << output
+            html_text << output
           end # end fp.items.each
-          @html_text << "</ul><br />\n"
-          @tmp << @html_text
+          html_text << "</ul><br />\n"
+          tmp << html_text
           @processed += 1
       rescue => e
         puts "Error processing feed - Group #{k.to_i + 1} - #{feed_url}"
@@ -126,9 +127,9 @@ else
 
     # if we had new feeds, move them to the cache file
     if @processed > 0
-      @cache = File::open(CACHE_FILES[k], "w")
-      @cache << @tmp
-      @cache.close
+      cache = File::open(CACHE_FILES[k], "w")
+      cache << tmp
+      cache.close
     end
   end #--> @all_feeds.each do |k,v|
   
