@@ -28,8 +28,6 @@ define('MAGPIE_CACHE_AGE', 60*60); // one hour
 //
 //***************************************************
 
-// Include RSS functions
-include_once(ABSPATH . WPINC . '/rss.php');
 // Include Spyc PHP YAML library
 include_once(FEEDCACHE_PATH . '/lib/spyc/spyc.php');
 
@@ -37,58 +35,15 @@ include_once(FEEDCACHE_PATH . '/lib/spyc/spyc.php');
 add_action('admin_menu', 'feedcache');
 
 // Functions
-function feedcache_display_feeds($rss_group = '1', $fname = 'feedcache-config') {
-	list($groups_num, $display_num, $title_pre, $title_post, $format_text, $link_target) = load_master_config();
-	$format_text = ($format_text == 'true') ? TRUE : FALSE;
-	$link_target = ($link_target == 'true') ? '_blank' : '_self';
-	
-	$fname = FEEDCACHE_FILES_PATH . trim($fname) . "$rss_group.txt";
-	$output = "";
-	if ($file_handle = fopen($fname, "r")) {
-		while (!feof($file_handle)) {
-			$line = trim(fgets($file_handle));
-			if (empty($line)) continue; // if there is a blank line in the config file just continue
-			$feed_info = explode('|', $line);
-			$feed = fetch_rss($feed_info[0]);
-			if (!is_array($feed->items)) break; // not sure why $feed->items is not always an array, but check for it here
-			$items = array_slice($feed->items, 0, (isset($feed_info[2])) ? intval($feed_info[2]) : intval($display_num));
-			$output .= $title_pre . (isset($feed_info[1]) ? $feed_info[1] : $feed->channel['title'] ) . $title_post;
-			$output .= "<ul>";
-			if (empty($items)) {
-				$output .= "<li>No items</li>";
-			} else {
-				foreach ($items as $item) {
-					//*******************************
-					//* still need to check if feed
-					//* title needs to be formatted
-					//*******************************
-					$output .= "<li><a href='" . $item['link'] . "' title='" . $item['title'] . "'>" . $item['title'] . "</a></li>";
-				}
-			}
-			$output .= "</ul>";
-		}
-		fclose($file_handle);
-		echo $output;
-	} else {
-		$output .= "Cannot find FeedCache feed group config file!";
-		echo $output;
-	}
-}
-
-function shorten_text($string='', $chars=CHAR_COUNT, $elli='...') {
-	list($new_string, $elli)= explode("\n", wordwrap($string, $chars, "\n", false));
-	return  ( $elli ) ? $new_string.'...' : $new_string;
-}
-
-function load_master_config() {
-	$fname = FEEDCACHE_PATH . "/master-config.txt";
-	if (file_exists($fname)) {
-		$file_content = trim(file_get_contents($fname));
-		return explode('~', $file_content);
-	} else {
-		echo "FeedCache Master Config file not found!";
-		exit;
-	}
+function feedcache_display_feeds($rss_group = '1', $fname = 'feedcache-cache') {
+  $fname = trim($fname.$rss_group);
+  if (strlen($fname) > 0) {
+    $fname = FEEDCACHE_FILES_PATH . $fname . '.txt';
+    if (file_exists($fname)) {
+      $file_content = file_get_contents($fname);
+      return $file_content;
+    }
+  }
 }
 
 function fc_build_config_file($group_array, $fname = 'feedcache-config') {
