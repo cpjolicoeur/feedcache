@@ -60,10 +60,10 @@ end
 if THREADED
   # fork a thread for each config file here
   send_cron_emails = CRON_EMAILS ? '-e' : ''
-  CONFIG_FILES.each do |config|
+  @groups_num.each do |group|
     pid = fork {
       # exec scripts here
-      system("/usr/bin/env ruby feedcache-lite.rb -p #{config} -n #{@display_num.to_i} -f #{@format_text} -l #{@link_target} -c #{CHAR_COUNT.to_i} #{send_cron_emails}")
+      system("/usr/bin/env ruby feedcache-lite.rb -p #{CONFIG_FILE} -g #{group} -n #{@display_num.to_i} -f #{@format_text} -l #{@link_target} -c #{CHAR_COUNT.to_i} #{send_cron_emails}")
     }
     Process.detach(pid)
   end
@@ -100,7 +100,7 @@ else
       begin
         source = Net::HTTP::get URI::parse(feed_url)
         fp = FeedParser::Feed::new(source)
-          html_text << @title_pre + (feed_title || fp.title) + @title_post
+          html_text << @title_pre + (feed_title || fp.title || '') + @title_post
           html_text << "<ul>"
           fp.items.each_with_index do |item, idx|
             break if feed_num ? feed_num.to_i == idx.to_i : @display_num.to_i == idx.to_i

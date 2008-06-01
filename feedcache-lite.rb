@@ -16,6 +16,7 @@ options = {
   :format_text => 'true',
   :link_target => '_blank',
   :char_count => 75, 
+  :group => 1,
   :cron_emails => false
 }
 OptionParser.new do |opts|
@@ -29,8 +30,12 @@ OptionParser.new do |opts|
     options[:cron_emails] = e
   end
   
-  opts.on("-p PATH", "--path PATH", "File path to process") do |p|
+  opts.on("-p PATH", "--path PATH", "Path of config file") do |p|
     options[:path] = p
+  end
+  
+  opts.on("-g GROUP", "--group GROUP", "Group number to process") do |g|
+    options[:group] = g.to_i
   end
   
   opts.on("-n NUM", "--num NUM", "Number of entries to show") do |n|
@@ -58,7 +63,7 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-raise "You must specify at least the -p file path option" if options[:path].nil?
+raise "You must specify at least the -g group number option" if options[:group].nil?
 
 CONFIG_FILE = "#{options[:path]}"
 CACHE_FILE = CONFIG_FILE.gsub(/config/, 'cache')
@@ -66,11 +71,11 @@ CACHE_FILE = CONFIG_FILE.gsub(/config/, 'cache')
 # RSS formatting function
 def shorten_text(txt, char_count)
   if txt.size > char_count
-    @text = "#{txt} ".slice(0,char_count)
+    text = "#{txt} ".slice(0,char_count)
     # need to break on the last space
-    if @text.include?(' ') and @text.slice(@text.size-1, 1) != ' '
-      @text.slice!(0, @text.size - (@text.reverse.index(' ') + 1))
-      @text << '...'
+    if text.include?(' ') and text.slice(text.size-1, 1) != ' '
+      text.slice!(0, text.size - (text.reverse.index(' ') + 1))
+      text << '...'
     end
     return @text
   else
@@ -79,33 +84,31 @@ def shorten_text(txt, char_count)
 end
 
 begin # read the config file settings
-  @feeds = []
-  config = File.open(CONFIG_FILE, 'r') do |f|
-    while line = f.gets
-      @feeds << line.strip
-    end
-  end
+  feeds = []
+  yaml_config = YAML.load_file(CONFIG_FILE)
+  yaml_config["group#{options[:group]}"].each { |x| feeds << x.strip if (!x.nil? && !x.strip.blank?) }
+  feeds = nil
 rescue => e
   if options[:cron_emails]
     puts "Error reading configuration file"
-    puts YAML.dump(e)
+    puts e.inspect
+    puts e.backtrace
   end
 end  
 
-@tmp = Tempfile.new("feedcache#{Time.now.to_i}")
+tmp = ''
 @processed = 0
 
 # parse the feeds here
-@feeds.each do |feed|
-  #puts "\nFEED -> #{feed}\n"
-  @html_text = ''
+feeds.each do |feed|
+  html_text = ''
   data = feed.split('|')
   feed_url, feed_title, feed_num, feed_format = data[0], data[1], data[2], data[3]
   begin
     source = Net::HTTP::get URI::parse(feed_url)
     fp = FeedParser::Feed::new(source)
-      @html_text << options[:title_pre] + (feed_title || fp.title) + options[:title_post]
-      @html_text << "<ul>"
+      html_text << options[:title_pre] + (feed_title || fp.title) + options[:title_post]
+      html_text << "<ul>"
       fp.items.each_with_index do |item, idx|
         break if feed_num ? feed_num.to_i == idx.to_i : options[:display_num].to_i == idx.to_i
         output = ''
@@ -120,23 +123,21 @@ end
           output << "#{item.title}"
         end
         output << "</a></li>\n"
-        @html_text << output
+        html_text << output
       end # end fp.items.each
-      @html_text << "</ul><br />\n"
-      @tmp << @html_text
+      html_text << "</ul><br />\n"
+      tmp << html_text
       @processed += 1
   rescue => e
     puts "Error processing feed - #{feed_url}"
-    puts YAML.dump(e)
+    puts e.inspect
+    puts e.backtrace
   end  
 end
 
-@tmp.close
 # if we had new feeds, move them to the cache file
 if @processed > 0
-  @tmp.open
-  @cache = File::open(CACHE_FILE, "w")
-  @cache << @tmp.gets(nil)
-  @cache.close
-  @tmp.close(true) # remove the /tmp file
+  cache = File::open(CACHE_FILE, "w")
+  cache << tmp
+  cache.close
 end
