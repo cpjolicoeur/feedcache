@@ -18,9 +18,6 @@ define("DEFAULT_FORMAT_TEXT", "true");
 define("DEFAULT_GROUP_NUM", '4');
 define("DEFAULT_DISPLAY_NUM", '5');
 define("CHAR_COUNT", 75);
-define("MAGPIE_CACHE_DIR", FEEDCACHE_PATH . '/cache'); // set cache path
-define("MAGPIE_CACHE_ON", 1); // turn on RSS caching
-define('MAGPIE_CACHE_AGE', 60*60); // one hour
 
 //***************************************************
 //

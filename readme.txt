@@ -4,7 +4,7 @@ Donate link: http://www.craigjolicoeur.com/feedcache
 Tags: RSS, ATOM, feed, cache
 Requires at least: 1.5
 Tested up to: 2.5.*
-Stable tag: 0.9.5
+Stable tag: 0.9.9
 
 Caches RSS Feeds for display on your WP sidebar. 
 
