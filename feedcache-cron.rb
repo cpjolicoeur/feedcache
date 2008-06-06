@@ -73,10 +73,10 @@ else
   begin # read the config file settings
     @all_feeds = {}
     yaml_config = YAML.load_file(CONFIG_FILE)
-    1.upto(@groups_num).each do |num|
+    1.upto(@groups_num) do |num|
       feeds = []
       next if yaml_config["group#{num}"].nil?
-      yaml_config["group#{num}"].each {|x| feeds << x.strip if (!x.nil? && !x.strip.blank?) }
+      yaml_config["group#{num}"].each {|x| feeds << x.strip if (!x.nil? && !x.strip.empty?) }
       @all_feeds[num] = feeds
       feeds = nil
     end
