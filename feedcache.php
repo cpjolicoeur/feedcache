@@ -4,7 +4,7 @@ Plugin Name: FeedCache
 Plugin URI: http://www.craigjolicoeur.com/feedcache
 Description: Caches RSS Feeds for display on WP site sidebar.  This prevents multiple HTTP requests with each page load since the feeds can be read from the cache file.
 Author: Craig P Jolicoeur
-Version: 1.0.3
+Version: 1.0.4
 Author URI: http://www.craigjolicoeur.com/
 */
 
@@ -161,7 +161,14 @@ function feedcache() {
         add_submenu_page('plugins.php', __('FeedCache Options'), __('FeedCache Options'), 1, __FILE__, 'feedcache_subpanel');
 }
 
+function feedcache_admin_footer() {
+	$plugin_data = get_plugin_data( __FILE__ );
+	printf('%1$s plugin | Version %2$s | by %3$s<br />', $plugin_data['Title'], $plugin_data['Version'], $plugin_data['Author']); 
+}
+
 function feedcache_subpanel() {
+	
+	add_action('in_admin_footer', 'feedcache_admin_footer');
 
 	if ($_POST['stage'] == 'prep') {
 		$options = get_option('plugin_feedcache_options');
