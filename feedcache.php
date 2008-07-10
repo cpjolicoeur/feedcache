@@ -156,9 +156,9 @@ function fc_build_master_config($group_num, $display_num, $title_pre, $title_pos
 }
 
 function feedcache() {
-    global $wpdb;
-    if (function_exists('add_submenu_page'))
-        add_submenu_page('plugins.php', __('FeedCache Options'), __('FeedCache Options'), 1, __FILE__, 'feedcache_subpanel');
+	if ( current_user_can('switch_themes') ) {
+    add_submenu_page('plugins.php', 'FeedCache Options', 'FeedCache', 'switch_themes', __FILE__, 'feedcache_subpanel');
+	}
 }
 
 function feedcache_admin_footer() {
