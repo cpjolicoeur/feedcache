@@ -1,5 +1,16 @@
 == CHANGELOG ==
 
+1.0.3 - 07/10/2008
+* update WP options to only use 2 option fields via an options array
+
+1.0.2 - 07/09/2008
+* use feed_tools gem for parsing
+* single YAML config file
+* store RSS cache into the WP database
+
+0.9.8 - 05/04/2008
+* allow for up to 99 feed groups now
+
 0.9.5 - 12/02/2007
 * added option to open feed links in a new browser window
 

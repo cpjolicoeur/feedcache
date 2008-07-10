@@ -1,16 +1,18 @@
 === FeedCache ===
 Contributors: cpjolicoeur
 Donate link: http://www.craigjolicoeur.com/feedcache
-Tags: RSS, ATOM, feed, cache
+Tags: RSS, ATOM, feed, cache, Ruby, CRON
 Requires at least: 1.5
-Tested up to: 2.5.*
-Stable tag: 0.9.9
+Tested up to: 2.6.*
+Stable tag: 1.0.3
 
 Caches RSS Feeds for display on your WP sidebar. 
 
 == Requirements ==
 
 * Ruby
+* Rubygems with the following gems available: active_record, feed_tools
+	(If you are hosted with Dreamhost you have these gems already.  If you are hosted elsewhere you will need to check.  If you run a VPS or dedicated machine like me, then just install them via `sudo gem install`)
 * CRON access
 
 == Description ==
@@ -19,15 +21,14 @@ FeedCache will retrieve, cache and store locally a list of RSS feeds that you ca
 
 == Installation ==
 
-1. Upload the feedcache directory to your wordpress wp-content/plugins directory.
+1. Upload the feedcache directory to your wordpress wp-content/plugins directory. Make sure the feedcache directory is writeable by the web server (rw-rw-rw 666).
 
-2a. Change the file permissions on the master-config.txt file to rw-rw-rw- (666)
-2b. Change the file permissions on the files/ directory to rwxrwxrwx (777)
+2. Change the file permissions on the master-config.txt file to rw-rw-rw- (666)
 
 3. Activate the FeedCache plugin through your wordpress plugin menu
 
 4. Setup FeedCache options under the Options -> FeedCache Options menu
-	(a) Choose the number of feed groups you want (1 - 10)
+	(a) Choose the number of feed groups you want (1 - 99)
   (b) Add your list of RSS feeds 1 per line and set the other options.  You can have up to 4 different groupings of RSS feeds to cache.
       If you wish to manually override the name of the feed, place a pipe character "|" after the RSS URL and then type the name you want to use (e.g http://www.craigjolicoeur.com|Craig P Jolicoeur)
       If you wish to manually override the number of feed items to display, place a pipe character "|" after the feed title and enter the number to display
@@ -60,14 +61,14 @@ FeedCache will retrieve, cache and store locally a list of RSS feeds that you ca
 == Upgrading ==
 
 **** IMPORTANT ************************************************************************
-	If you are upgrading from a version of FeedCache prior to v0.9, please
+	If you are upgrading from a version of FeedCache prior to v0.9.8, please
 	deactivate and delete your existing feedcache plugin directory and follow the new
 	installation steps.
 ***************************************************************************************
 
 1. Deactivate the previous version of FeedCache through your Wordpress plugins menu
 
-2. Upload the new feedcache-cron.rb, feedcache.php and complete lib/ directory files to your existing feedcache directory.  You do not need to overwrite your existing files/ directory or the master-config.txt file.
+2. Upload the new feedcache-cron.rb, feedcache.php and complete lib/ directory files to your existing feedcache directory.  You do not need to overwrite your master-config.txt file.
 
 3. Enter the correct FEEDCACHE_DIR variable in the feedcache-cron.rb script
 
@@ -78,11 +79,11 @@ FeedCache will retrieve, cache and store locally a list of RSS feeds that you ca
 
 = Why would I need this plugin? =
 
-If you are using your WP installation to display other website's RSS feeds, this will save HTTP requests and improve page load times for your users.
+If you are using your WP installation to display other website's RSS feeds, this will save HTTP requests and improve page load times for your users.  By using a CRON job to fetch and format the feeds, the user will not have to wait during page load for the feed to be updated.
 
 = Will FeedCache work with Atom feeds? = 
 
-Yes!  Since version 0.8, FeedCache will work with both RSS and ATOM feeds.
+Yes!  FeedCache will work with both RSS and ATOM feeds.
 
 = Can I receive error emails from the CRON process? =
 

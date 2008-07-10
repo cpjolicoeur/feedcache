@@ -1,9 +1,0 @@
-* update the readme file
-
-* get away from forcing the feedcache plugin directory to be called 'feedcache' - allow users to call it what they want and then just check for the base directory and path via PHP
-
-* switch from using Ruby to using the built-in WP fetch_rss calls that use Magpie and caching
-
-* make Feedity.com feeds work with plugin
-
-* make the feed groups sortable by newest items.  If a feed has new items it should be "floated up" to the top of that group
