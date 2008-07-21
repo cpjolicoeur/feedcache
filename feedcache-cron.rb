@@ -18,6 +18,7 @@ require 'rubygems'
 require 'active_record'
 require 'feed_tools'
 require 'yaml'
+require 'iconv'
 
 # Read master config settings
 MASTER_CONFIG = "#{FEEDCACHE_DIR}/master-config.txt"
@@ -48,6 +49,13 @@ ActiveRecord::Base.establish_connection(
 
 class WPFeed < ActiveRecord::Base
   set_table_name "#{WPDB_PREFIX}feedcache_data"
+end
+
+class String
+  def to_ascii_iconv
+    converter = Iconv.new('ASCII//IGNORE//TRANSLIT', 'UTF-8')
+    converter.iconv(self).unpack('U*').select{ |cp| cp < 127 }.pack('U*')
+  end
 end
 
 # Load config and cache file variables
@@ -103,6 +111,7 @@ end
         break if feed_num ? feed_num.to_i == idx.to_i : @display_num.to_i == idx.to_i
         output = ''
         output << "<li><a href='#{item.link}' target='#{@link_target}'>"
+        item.title.replace(item.title.to_ascii_iconv)
         if feed_format && feed_format == 'true'
           txt = "#{item.title.downcase.gsub(/^[a-z]|\s+[a-z]/) {|a| a.upcase}}"
           output << shorten_text(txt)

@@ -1,6 +1,9 @@
 == CHANGELOG ==
 
-1.0.4 - 
+1.0.5 - 7/13/2008
+* strip non-ascii characters from title output
+
+1.0.4 - 7/10/2008
 * added plugin credits to admin page footer
 * updated credential levels for adding admin subpage
 

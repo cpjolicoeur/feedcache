@@ -4,7 +4,7 @@ Donate link: http://www.craigjolicoeur.com/feedcache
 Tags: RSS, ATOM, feed, cache, Ruby, CRON
 Requires at least: 2.3
 Tested up to: 2.6.*
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 
 Caches RSS Feeds for display on your WP sidebar. 
 

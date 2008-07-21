@@ -4,9 +4,15 @@ Plugin Name: FeedCache
 Plugin URI: http://www.craigjolicoeur.com/feedcache
 Description: Caches RSS Feeds for display on WP site sidebar.  This prevents multiple HTTP requests with each page load since the feeds can be read from the cache file.
 Author: Craig P Jolicoeur
-Version: 1.0.4
+Version: 1.0.5
 Author URI: http://www.craigjolicoeur.com/
 */
+
+//***************************************************
+//
+//         DO NOT EDIT BELOW THIS LINE                         
+//
+//***************************************************
 
 // Pre-2.6 compatibility
 if ( !defined('WP_CONTENT_URL') ) {
@@ -17,7 +23,6 @@ if ( !defined('WP_CONTENT_DIR') ) {
 }
 
 // Constants
-define("MAX_GROUPSIZE", 10);
 define("FEEDCACHE_PATH", WP_CONTENT_DIR.'/plugins/'.plugin_basename(dirname(__FILE__)));
 define("FEEDCACHE_FILES_PATH", FEEDCACHE_PATH . '/');
 define("DEFAULT_PRE_TAG", "<h3>");
@@ -26,12 +31,7 @@ define("DEFAULT_FORMAT_TEXT", "true");
 define("DEFAULT_GROUP_NUM", '4');
 define("DEFAULT_DISPLAY_NUM", '5');
 define("CHAR_COUNT", 75);
-
-//***************************************************
-//
-//         DO NOT EDIT BELOW THIS LINE                         
-//
-//***************************************************
+define("MAX_GROUPSIZE", 10);
 
 // Include Spyc PHP YAML library
 include_once(FEEDCACHE_PATH . '/lib/spyc/spyc.php');
