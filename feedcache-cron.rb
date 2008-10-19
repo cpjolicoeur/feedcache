@@ -67,7 +67,7 @@ def shorten_text(txt)
     text = "#{txt} ".slice(0,CHAR_COUNT)
     # need to break on the last space
     if text.include?(' ') and text.slice(text.size-1, 1) != ' '
-      text.slice!(0, text.size - (text.reverse.index(' ') + 1))
+      text = text.slice(0, text.size - (text.reverse.index(' ') + 1))
       text << '...'
     end
     return text

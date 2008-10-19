@@ -4,7 +4,7 @@ Plugin Name: FeedCache
 Plugin URI: http://www.craigjolicoeur.com/feedcache
 Description: Caches RSS Feeds for display on WP site sidebar.  This prevents multiple HTTP requests with each page load since the feeds can be read from the cache file.
 Author: Craig P Jolicoeur
-Version: 1.0.5
+Version: 1.0.6.1
 Author URI: http://www.craigjolicoeur.com/
 */
 
@@ -262,7 +262,8 @@ function feedcache_subpanel() {
 								<label for"feedcache[format_text]">
 									<select name="feedcache[format_text]">
 								    <option value='true' <?php if ($options['format_text'] == 'true') { echo 'selected'; } ?> >True</option>
-								    <option value='false' <?php if ($options['format_text'] == 'false') { echo 'selected'; } ?>										</select>
+								    <option value='false' <?php if ($options['format_text'] == 'false') { echo 'selected'; } ?> >False</option>
+									</select>
 								</label>
 							</td>
 						</tr>
