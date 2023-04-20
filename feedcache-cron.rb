@@ -1,24 +1,24 @@
 #!/usr/bin/env ruby
 
 # Add the path to your feedcache directory here
-FEEDCACHE_DIR = '/path/to/your/wordpress/wp-content/plugins/feedcache'
+# FEEDCACHE_DIR = '/src/cpjolicoeur/feedcache/feedcache'
+FEEDCACHE_DIR = '/Users/cpjolicoeur/src/feedcache/feedcache'
 # How many characters from each feed item do you want to display
-CHAR_COUNT = 75
+CHAR_COUNT = 60
 # Set to 'true' if you want to receive error emails from the CRON job
-CRON_EMAILS = false
+CRON_EMAILS = true
 
 #################################################################
 #                                                               #
 #  DO NOT EDIT BELOW THIS LINE                                  #
 #                                                               #
 #################################################################
-$LOAD_PATH << File.expand_path(File.dirname(__FILE__))
+$LOAD_PATH << File.expand_path(__dir__)
 
-require 'rubygems'
 require 'active_record'
-require 'feed_tools'
+require 'rss'
+require 'open-uri'
 require 'yaml'
-require 'iconv'
 
 # Read master config settings
 MASTER_CONFIG = "#{FEEDCACHE_DIR}/master-config.txt"
@@ -26,6 +26,7 @@ params = []
 cfg = File.open(MASTER_CONFIG, 'r') do |f|
   params = f.gets.split('~');
 end
+
 # parse the parameters from the config file
 @groups_num   = params[0].strip.to_i
 @display_num  = params[1].strip
@@ -39,27 +40,28 @@ WPDB_PREFIX   = params[6].strip
 @wpdb_user    = params[9].strip
 @wpdb_pass    = params[10].strip
 
+# Load config and cache file variables
+CONFIG_FILE = "#{FEEDCACHE_DIR}/feedcache-config.yml"
+
 ActiveRecord::Base.establish_connection(
-  :adapter  => 'mysql',
+  :adapter  => 'mysql2',
+  :socket   => '/var/run/mysqld/mysqld.sock',
   :host     => @wpdb_host,
   :username => @wpdb_user,
   :password => @wpdb_pass,
-  :database => @wpdb_name
+  :database => "#{@wpdb_name}\0"
 )
 
 class WPFeed < ActiveRecord::Base
-  set_table_name "#{WPDB_PREFIX}feedcache_data"
+  self.table_name = "#{WPDB_PREFIX}feedcache_data"
+  self.primary_key = 'id'
 end
 
 class String
   def to_ascii_iconv
-    converter = Iconv.new('ASCII//IGNORE//TRANSLIT', 'UTF-8')
-    converter.iconv(self).unpack('U*').select{ |cp| cp < 127 }.pack('U*')
+    self.encode('ASCII', invalid: :replace, undef: :replace, replace: '')
   end
 end
-
-# Load config and cache file variables
-CONFIG_FILE = "#{FEEDCACHE_DIR}/feedcache-config.yml"
 
 # RSS formatting function
 def shorten_text(txt)
@@ -76,54 +78,77 @@ def shorten_text(txt)
   end
 end
 
+def fetch_rss(url)
+  content = URI.open(url).read
+  rss = RSS::Parser.parse(content, validate: false)
+  rss
+rescue StandardError => e
+  puts "#{e.class} => Error fetching or parsing #{url}: #{e.message}"
+  nil
+end
+
 begin # read the config file settings
   @all_feeds = {}
   yaml_config = YAML.load_file(CONFIG_FILE)
   1.upto(@groups_num) do |num|
     feeds = []
     next if yaml_config["group#{num}"].nil?
-    yaml_config["group#{num}"].each {|x| feeds << x.strip if (!x.nil? && !x.strip.blank?) }
+    yaml_config["group#{num}"].split(/\n/).each {|x| feeds << x.strip if (!x.nil? && !x.strip.blank?) }
     @all_feeds[num] = feeds
     feeds = nil
   end
 rescue => e
   if CRON_EMAILS
-    puts "Error reading YAML configuration file"
+    puts "Error reading YAML configuration file: #{e.message}"
     puts e.inspect
     puts e.backtrace
   end
-end  
+end
+
+# puts "\n\n**ALL FEEDS**\n\n#{@all_feeds}\n\n"
 
 @all_feeds.each do |k,v|
   tmp = ''
   @processed = 0
 
-  # parse the feeds here
   v.each do |feed|
     html_text = ''
     data = feed.split('|')
     feed_url, feed_title, feed_num, feed_format = data[0], data[1], data[2], data[3]
     begin
-      fp = FeedTools::Feed.open(feed_url)
-      html_text << @title_pre + (feed_title || fp.title || '') + @title_post
+      rss = fetch_rss(feed_url)
+      next unless rss
+
+      feed_items = []
+      if 'rss' == rss.feed_type
+        feed_items = rss.channel.items
+        feed_title = feed_title || rss.channel.title || ''
+      elsif 'atom' == rss.feed_type
+        feed_items = rss.entries
+        feed_title = feed_title || rss.title || ''
+      end
+
+      html_text << @title_pre + feed_title + @title_post
       html_text << "<ul>"
-      fp.items.each_with_index do |item, idx|
+
+      feed_items.each_with_index do |item, idx|
         break if feed_num ? feed_num.to_i == idx.to_i : @display_num.to_i == idx.to_i
         output = ''
         output << "<li><a href='#{item.link}' target='#{@link_target}'>"
-        item.title.replace(item.title.to_ascii_iconv)
+        item_title = item.title.to_s.to_ascii_iconv
         if feed_format && feed_format == 'true'
-          txt = "#{item.title.downcase.gsub(/^[a-z]|\s+[a-z]/) {|a| a.upcase}}"
+          txt = "#{item_title.downcase.gsub(/^[a-z]|\s+[a-z]/) {|a| a.upcase}}"
           output << shorten_text(txt)
         elsif @format_text == true
-          txt = "#{item.title.downcase.gsub(/^[a-z]|\s+[a-z]/) {|a| a.upcase}}"
+          txt = "#{item_title.downcase.gsub(/^[a-z]|\s+[a-z]/) {|a| a.upcase}}"
           output << shorten_text(txt)
         else
-          output << "#{item.title}"
+          output << "#{item_title}"
         end
         output << "</a></li>\n"
         html_text << output
-      end # end fp.items.each
+      end # end feed_items.each_with_index
+
       html_text << "</ul><br />\n"
       tmp << html_text
       @processed += 1
@@ -133,12 +158,14 @@ end
         puts e.inspect
         puts e.backtrace
       end
-    end  
-  end
+    end # end begin...rescue
+  end # end v.each do |feed|
 
   # if we had new feeds, move them to the cache file
   if @processed > 0
-    wp_data = WPFeed.find_or_initialize_by_group_id(k)
-    wp_data.update_attributes(:data => tmp, :updated_at => Time.now)
+    puts "****** Group id: #{k}\nData: #{tmp}\n"
+    # wp_data = WPFeed.find_or_initialize_by(group_id: k)
+    # wp_data.update(data: tmp, updated_at: Time.now)
   end
-end #--> @all_feeds.each do |k,v|
+end # end @all_feeds.each do |k,v|
+

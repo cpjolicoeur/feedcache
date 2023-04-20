@@ -3,16 +3,15 @@ Contributors: cpjolicoeur
 Donate link: http://www.craigjolicoeur.com/feedcache
 Tags: RSS, ATOM, feed, cache, Ruby, CRON
 Requires at least: 2.3
-Tested up to: 2.6.*
-Stable tag: 1.0.6.1
+Tested up to: 6.2.*
+Stable tag: 2.0.0
 
-Caches RSS Feeds for display on your WP sidebar. 
+Caches RSS Feeds for display on your WP sidebar.
 
 == Requirements ==
 
-* Ruby
-* Rubygems with the following gems available: active_record, feed_tools
-	(If you are hosted with Dreamhost you have these gems already.  If you are hosted elsewhere you will need to check.  If you run a VPS or dedicated machine like me, then just install them via `sudo gem install`)
+* Ruby 3
+* Rubygems with the following gems available: active_record, mysql2
 * CRON access
 
 == Description ==
@@ -45,12 +44,12 @@ FeedCache will retrieve, cache and store locally a list of RSS feeds that you ca
 
 7. Add the following code to your wordpress theme where you want the RSS feed listing to be displayed
 
-	<?php if (function_exists('feedcache_display_feeds')) { echo feedcache_display_feeds(); } ?>  
-	
-	for the default (group 1) listing or you can specify a group (in this case, group 2) 
+	<?php if (function_exists('feedcache_display_feeds')) { echo feedcache_display_feeds(); } ?>
 
-	<?php if (function_exists('feedcache_display_feeds')) { echo feedcache_display_feeds(2); } ?>  
-	
+	for the default (group 1) listing or you can specify a group (in this case, group 2)
+
+	<?php if (function_exists('feedcache_display_feeds')) { echo feedcache_display_feeds(2); } ?>
+
 	If you don't specify a group number in the function call, then Group 1 will be used.  If you want to specify the specific
 	group number to display use "feedcache_display_feeds(_GROUP_NUMBER_)" where _GROUP_NUMBER_ is the number you want to display.
 
@@ -81,7 +80,7 @@ FeedCache will retrieve, cache and store locally a list of RSS feeds that you ca
 
 If you are using your WP installation to display other website's RSS feeds, this will save HTTP requests and improve page load times for your users.  By using a CRON job to fetch and format the feeds, the user will not have to wait during page load for the feed to be updated.
 
-= Will FeedCache work with Atom feeds? = 
+= Will FeedCache work with Atom feeds? =
 
 Yes!  FeedCache will work with both RSS and ATOM feeds.
 
@@ -89,7 +88,7 @@ Yes!  FeedCache will work with both RSS and ATOM feeds.
 
 Yes, just set CRON_EMAILS = true in the feedcache-cron.rb script.  Error emails are turned off by default.
 
-= Can I have more than 10 RSS Groups = 
+= Can I have more than 10 RSS Groups =
 
 Yes, but you'll need to manually edit the feedcache.php file.  Find the following line:
 

@@ -4,13 +4,13 @@ Plugin Name: FeedCache
 Plugin URI: http://www.craigjolicoeur.com/feedcache
 Description: Caches RSS Feeds for display on WP site sidebar.  This prevents multiple HTTP requests with each page load since the feeds can be read from the cache file.
 Author: Craig P Jolicoeur
-Version: 1.0.6.1
+Version: 2.0.0
 Author URI: http://www.craigjolicoeur.com/
 */
 
 //***************************************************
 //
-//         DO NOT EDIT BELOW THIS LINE                         
+//         DO NOT EDIT BELOW THIS LINE
 //
 //***************************************************
 
@@ -45,7 +45,7 @@ $feedcache_db_version = "1.0";
 function feedcache_install () {
 	global $wpdb;
 	global $feedcache_db_version;
-	
+
 	// Install DB table if not already installed
 	$table_name = $wpdb->prefix . "feedcache_data";
 	if ($wpdb->get_var("show tables like '$table_name'") != $table_name) {
@@ -57,10 +57,10 @@ function feedcache_install () {
 			UNIQUE KEY id (id),
 			UNIQUE KEY group_id (group_id)
 			);";
-			
+
 			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 			dbDelta($sql);
-			
+
 			add_option("feedcache_db_version", $feedcache_db_version);
 	}
 
@@ -68,13 +68,13 @@ function feedcache_install () {
 	$installed_ver = get_option("feedcache_db_version");
 	if ($installed_ver != $feedcache_db_version) {
 		$sql = ""; // New DB schema here
-		
+
 		require_once(ABSPATH . 'wp-admin/inclues/upgrade.php');
 		dbDelta($sql);
-		
+
 		update_option("feedcache_db_version", $feedcache_db_verion);
 	}
-	
+
 	$new_groups = array();
 	$new_options = array(
 		'group_num' => DEFAULT_GROUP_NUM,
@@ -100,7 +100,7 @@ function feedcache_install () {
 	}
 	add_option('plugin_feedcache_groups', $new_groups);
 	add_option('plugin_feedcache_options', $new_options);
-	
+
 }
 
 // Functions
@@ -163,11 +163,11 @@ function feedcache() {
 
 function feedcache_admin_footer() {
 	$plugin_data = get_plugin_data( __FILE__ );
-	printf('%1$s plugin | Version %2$s | by %3$s<br />', $plugin_data['Title'], $plugin_data['Version'], $plugin_data['Author']); 
+	printf('%1$s plugin | Version %2$s | by %3$s<br />', $plugin_data['Title'], $plugin_data['Version'], $plugin_data['Author']);
 }
 
 function feedcache_subpanel() {
-	
+
 	add_action('in_admin_footer', 'feedcache_admin_footer');
 
 	if ($_POST['stage'] == 'prep') {
@@ -175,7 +175,7 @@ function feedcache_subpanel() {
 		$options['group_num'] = $_POST['feedcache_group_num'];
 		update_option('plugin_feedcache_options', $options);
 	}
-   
+
 	$options = get_option('plugin_feedcache_options');
 	$number_of_groups = $options['group_num'];
 
@@ -196,7 +196,7 @@ function feedcache_subpanel() {
 	$options = get_option('plugin_feedcache_options');
 	$groups = get_option('plugin_feedcache_groups');
 ?>
-    
+
    <div class="wrap">
        <h2 id="write-post">FeedCache&hellip;</h2>
        <p>Fill in the list of RSS feeds you want to process and how you want them formatted and displayed on your site.  If you notice any bugs or have suggestions please contact the developers at <a href="http://www.craigjolicoeur.com/feedcache" title="Craig Jolicoeurs's Home Page">FeedCache on craigjolicoeur.com</a>.</a></p>
@@ -226,7 +226,7 @@ function feedcache_subpanel() {
 				</table>
          <input type="hidden" name="stage" value="prep" />
 			</form><!-- end #prep_form -->
-								
+
        <form method="post" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
 		  	<div>
 					<p>Enter the list of RSS Feeds [1 per line]</p>
@@ -253,7 +253,7 @@ function feedcache_subpanel() {
 						?>
 						<tr valign="top">
 							<th scope="row">Number of articles to display:</th>
-							<td><input type="text" name="feedcache[display_num]" style="width:20px;" value="<?php echo $options['display_num']; ?>" />
+							<td><input type="text" name="feedcache[display_num]" style="width:65px;" value="<?php echo $options['display_num']; ?>" />
 							</td>
 						</tr>
 						<tr valign="top">
@@ -262,8 +262,8 @@ function feedcache_subpanel() {
 								<label for"feedcache[format_text]">
 									<select name="feedcache[format_text]">
 								    <option value='true' <?php if ($options['format_text'] == 'true') { echo 'selected'; } ?> >True</option>
-								    <option value='false' <?php if ($options['format_text'] == 'false') { echo 'selected'; } ?> >False</option>
-									</select>
+                    <option value='false' <?php if ($options['format_text'] == 'false') { echo 'selected'; } ?> >False</option>
+                  </select>
 								</label>
 							</td>
 						</tr>
@@ -273,15 +273,16 @@ function feedcache_subpanel() {
 								<label for"feedcache[target_blank]">
 									<select name="feedcache[target_blank]">
 								    <option value='true' <?php if ($options['target_blank'] == 'true') { echo 'selected'; } ?> >True</option>
-								    <option value='false' <?php if ($options['target_blank'] == 'false') { echo 'selected'; } ?>										</select>
+                    <option value='false' <?php if ($options['target_blank'] == 'false') { echo 'selected'; } ?> >False</option>
+                  </select>
 								</label>
 							</td>
 						</tr>
 						<tr valign="top">
 							<th scope="row">Feed title display pre/post tags:</th>
 							<td>
-                 <input type="text" name="feedcache[title_pre]" style="width:50px;" value=<?php echo '\''. $options['title_pre'] . '\''; ?> />&nbsp;/&nbsp;
-                 <input type="text" name="feedcache[title_post]" style="width:50px;" value=<?php echo '\''. $options['title_post'] . '\''; ?> /> <em style="font-size:11px;">e.g &lt;h2&gt; / &lt;/h2&gt;</em>
+                 <input type="text" name="feedcache[title_pre]" style="width:65px;" value=<?php echo '\''. $options['title_pre'] . '\''; ?> />&nbsp;/&nbsp;
+                 <input type="text" name="feedcache[title_post]" style="width:65px;" value=<?php echo '\''. $options['title_post'] . '\''; ?> /> <em style="font-size:11px;">e.g &lt;h2&gt; / &lt;/h2&gt;</em>
 							</td>
 						</tr>
 					</tbody>
@@ -292,17 +293,17 @@ function feedcache_subpanel() {
 				</div>
 				<input type="hidden" name="stage" value="process" />
 			</form><!-- end main form -->
-				
-			
+
+
 			<div class="options" id="script-settings">
         <h3>CRON Script Settings</h3>
-				<p> 
+				<p>
 			    Here is the <b>feedcache directory path</b> to use in the CRON script:<br />
 			    <?php echo FEEDCACHE_PATH . "<br />"; ?>
 				</p>
 			</div>
    </div><!-- end .wrap -->
 
-<?php            
+<?php
 }
 ?>
