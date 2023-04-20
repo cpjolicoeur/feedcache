@@ -1,5 +1,10 @@
 == CHANGELOG ==
 
+2.0.0 - 04/20/2023
+* Upgrade to use Ruby 3
+* Upgrade cron script to use all core SDK libraries (except active_record and mysql2)
+* Update PHP script for current Wordpress version 6.2 and PHP 8
+
 1.0.6.1 - 10/16/2008
 * bugfix for missing false option on settings page
 
@@ -60,7 +65,7 @@
 * Fix broken feed formatting options
 
 0.5.5 - 09/27/2007
-* Added user-agent to the CRON script to force RSS-only feeds from feedburners SmartFeed service 
+* Added user-agent to the CRON script to force RSS-only feeds from feedburners SmartFeed service
 
 0.5.2 - 09/24/2007
 * Lower the error output level from the CRON job again
